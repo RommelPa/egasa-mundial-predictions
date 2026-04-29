@@ -3,11 +3,12 @@ import { requireAdmin } from "@/lib/auth-guard";
 import { CreateMatchForm } from "./ui/create-match-form";
 import { formatStage, getMatchStatus } from "@/lib/domain/matches";
 import { formatDateTime } from "@/lib/format/date";
+import type { Match } from "@prisma/client";
 
 export default async function AdminMatchesPage() {
   await requireAdmin();
 
-  const matches = await prisma.match.findMany({
+  const matches: Match[] = await prisma.match.findMany({
     orderBy: [{ kickoffAt: "asc" }, { matchNumber: "asc" }],
   });
 
@@ -45,7 +46,7 @@ export default async function AdminMatchesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {matches.map((match) => (
+                  {matches.map((match: Match) => (
                     <tr
                       key={match.id}
                       className="border-b border-white/5 text-zinc-200"
