@@ -1,15 +1,17 @@
 "use server";
 
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
-import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
 
 type ActionState = {
   success?: boolean;
   error?: string;
 };
+
+const ALLOWED_ROLES = ["ADMIN", "USER"] as const;
+type RoleValue = (typeof ALLOWED_ROLES)[number];
 
 export async function createUser(
   _prevState: ActionState,
@@ -17,13 +19,16 @@ export async function createUser(
 ): Promise<ActionState> {
   await requireAdmin();
 
-  const username = formData.get("username")?.toString().trim().toLowerCase();
+  const username = formData.get("username")?.toString().trim();
   const password = formData.get("password")?.toString();
   const roleValue = formData.get("role")?.toString();
-  const activeValue = formData.get("active")?.toString();
 
   if (!username || !password || !roleValue) {
-    return { error: "Todos los campos obligatorios deben completarse." };
+    return { error: "Todos los campos son obligatorios." };
+  }
+
+  if (!ALLOWED_ROLES.includes(roleValue as RoleValue)) {
+    return { error: "Rol inválido." };
   }
 
   if (username.length < 3) {
@@ -32,10 +37,6 @@ export async function createUser(
 
   if (password.length < 6) {
     return { error: "La contraseña debe tener al menos 6 caracteres." };
-  }
-
-  if (!["ADMIN", "USER"].includes(roleValue)) {
-    return { error: "Rol inválido." };
   }
 
   const existingUser = await prisma.user.findUnique({
@@ -52,8 +53,8 @@ export async function createUser(
     data: {
       username,
       passwordHash,
-      role: roleValue as Role,
-      active: activeValue === "on",
+      role: roleValue as RoleValue,
+      active: true,
     },
   });
 

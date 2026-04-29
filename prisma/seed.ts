@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 
@@ -28,7 +27,7 @@ async function main() {
     data: {
       username: adminUsername,
       passwordHash,
-      role: Role.ADMIN,
+      role: "ADMIN",
       active: true,
     },
   });
