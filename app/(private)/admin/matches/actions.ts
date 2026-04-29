@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
+import { parseDatetimeLocal } from "@/lib/format/date";
 
 type ActionState = {
   success?: boolean;
@@ -57,9 +58,9 @@ export async function createMatch(
     return { error: "Fase inválida." };
   }
 
-  const kickoffAt = new Date(kickoffAtValue);
+  const kickoffAt = parseDatetimeLocal(kickoffAtValue);
 
-  if (Number.isNaN(kickoffAt.getTime())) {
+  if (!kickoffAt) {
     return { error: "La fecha y hora del partido no es válida." };
   }
 
