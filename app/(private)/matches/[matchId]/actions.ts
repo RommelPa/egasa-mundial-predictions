@@ -3,15 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
+import {
+  parseNonNegativeInteger,
+  validatePredictionLikeInput,
+} from "@/lib/domain/predictions";
 
 type ActionState = {
   success?: boolean;
   error?: string;
 };
-
-function isKnockoutStage(stage: string) {
-  return stage !== "GROUP";
-}
 
 export async function savePrediction(
   matchId: string,
@@ -22,22 +22,25 @@ export async function savePrediction(
 
   const predictedHomeValue = formData.get("predictedHome")?.toString();
   const predictedAwayValue = formData.get("predictedAway")?.toString();
-  const qualifiedTeam = formData.get("qualifiedTeam")?.toString().trim() || null;
+  const qualifiedTeamRaw = formData.get("qualifiedTeam")?.toString();
+  const qualifiedTeam = qualifiedTeamRaw?.trim() || null;
 
-  if (!predictedHomeValue || !predictedAwayValue) {
-    return { error: "Debes completar ambos marcadores." };
+  const parsedHome = parseNonNegativeInteger(
+    predictedHomeValue,
+    "el marcador del equipo local"
+  );
+
+  if (!parsedHome.ok) {
+    return { error: parsedHome.error };
   }
 
-  const predictedHome = Number(predictedHomeValue);
-  const predictedAway = Number(predictedAwayValue);
+  const parsedAway = parseNonNegativeInteger(
+    predictedAwayValue,
+    "el marcador del equipo visitante"
+  );
 
-  if (
-    !Number.isInteger(predictedHome) ||
-    !Number.isInteger(predictedAway) ||
-    predictedHome < 0 ||
-    predictedAway < 0
-  ) {
-    return { error: "Los marcadores deben ser enteros mayores o iguales a 0." };
+  if (!parsedAway.ok) {
+    return { error: parsedAway.error };
   }
 
   const match = await prisma.match.findUnique({
@@ -56,35 +59,24 @@ export async function savePrediction(
     };
   }
 
-  const knockout = isKnockoutStage(match.stage);
+  const validation = validatePredictionLikeInput({
+    stage: match.stage,
+    homeTeam: match.homeTeam,
+    awayTeam: match.awayTeam,
+    homeScore: parsedHome.value,
+    awayScore: parsedAway.value,
+    qualifiedTeam,
+  });
 
-  if (knockout && predictedHome === predictedAway && !qualifiedTeam) {
-    return {
-      error: "Si pronosticas empate en eliminación, debes indicar quién clasifica.",
-    };
+  if (!validation.ok) {
+    return { error: validation.error };
   }
 
-  if (!knockout && qualifiedTeam) {
-    return {
-      error: "No debes indicar clasificado para partidos de fase de grupos.",
-    };
-  }
-
-  if (
-    knockout &&
-    predictedHome === predictedAway &&
-    qualifiedTeam &&
-    qualifiedTeam !== match.homeTeam &&
-    qualifiedTeam !== match.awayTeam
-  ) {
-    return { error: "El clasificado elegido no corresponde a este partido." };
-  }
-
-  if (knockout && predictedHome !== predictedAway && qualifiedTeam) {
-    return {
-      error: "Solo debes elegir clasificado si pronosticas empate en eliminación.",
-    };
-  }
+  const data = {
+    predictedHome: parsedHome.value,
+    predictedAway: parsedAway.value,
+    qualifiedTeam: validation.normalizedQualifiedTeam,
+  };
 
   const existingPrediction = await prisma.prediction.findUnique({
     where: {
@@ -103,22 +95,14 @@ export async function savePrediction(
           matchId,
         },
       },
-      data: {
-        predictedHome,
-        predictedAway,
-        qualifiedTeam:
-          knockout && predictedHome === predictedAway ? qualifiedTeam : null,
-      },
+      data,
     });
   } else {
     await prisma.prediction.create({
       data: {
         userId: session.user.id,
         matchId,
-        predictedHome,
-        predictedAway,
-        qualifiedTeam:
-          knockout && predictedHome === predictedAway ? qualifiedTeam : null,
+        ...data,
       },
     });
   }

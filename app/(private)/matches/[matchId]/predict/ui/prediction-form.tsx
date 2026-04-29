@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { savePrediction } from "../../actions";
+import { isKnockoutStage } from "@/lib/domain/matches";
+import { UI_TEXT } from "@/lib/ui/text";
 
 type PredictionFormProps = {
   matchId: string;
@@ -19,10 +21,6 @@ const initialState = {
   success: false,
   error: "",
 };
-
-function isKnockoutStage(stage: string) {
-  return stage !== "GROUP";
-}
 
 export function PredictionForm({
   matchId,
@@ -48,32 +46,6 @@ export function PredictionForm({
     initialState
   );
 
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const showQualifiedTeam =
-    knockout &&
-    predictedHome !== "" &&
-    predictedAway !== "" &&
-    Number(predictedHome) === Number(predictedAway);
-
-  useEffect(() => {
-    if (!showQualifiedTeam) {
-      setQualifiedTeam("");
-    }
-  }, [showQualifiedTeam]);
-
-  useEffect(() => {
-    if (state.success) {
-      formRef.current?.reset();
-      setPredictedHome(
-        initialPrediction ? String(initialPrediction.predictedHome) : predictedHome
-      );
-      setPredictedAway(
-        initialPrediction ? String(initialPrediction.predictedAway) : predictedAway
-      );
-    }
-  }, [state.success, initialPrediction, predictedHome, predictedAway]);
-
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
       <h2 className="text-xl font-semibold">Tu pronóstico</h2>
@@ -81,7 +53,7 @@ export function PredictionForm({
         Puedes guardar o actualizar tu predicción para este partido.
       </p>
 
-      <form ref={formRef} action={formAction} className="mt-6 space-y-5">
+      <form action={formAction} className="mt-6 space-y-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label
@@ -124,13 +96,13 @@ export function PredictionForm({
           </div>
         </div>
 
-        {showQualifiedTeam ? (
+        {knockout ? (
           <div>
             <label
               htmlFor="qualifiedTeam"
               className="mb-2 block text-sm font-medium text-zinc-200"
             >
-              Clasificado por penales
+              {UI_TEXT.labels.qualifiedTeam}
             </label>
             <select
               id="qualifiedTeam"
@@ -144,6 +116,9 @@ export function PredictionForm({
               <option value={homeTeam}>{homeTeam}</option>
               <option value={awayTeam}>{awayTeam}</option>
             </select>
+            <p className="mt-2 text-xs text-zinc-400">
+              {UI_TEXT.helper.knockoutQualifiedTeam}
+            </p>
           </div>
         ) : null}
 

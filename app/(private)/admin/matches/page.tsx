@@ -1,38 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
 import { CreateMatchForm } from "./ui/create-match-form";
-
-function getMatchStatus(match: {
-  kickoffAt: Date;
-  resultHome: number | null;
-  resultAway: number | null;
-}) {
-  if (match.resultHome !== null && match.resultAway !== null) {
-    return "Finalizado";
-  }
-
-  const now = new Date();
-
-  if (match.kickoffAt <= now) {
-    return "Cerrado";
-  }
-
-  return "Abierto";
-}
-
-function formatStage(stage: string) {
-  const labels: Record<string, string> = {
-    GROUP: "Grupos",
-    ROUND_OF_32: "Dieciseisavos",
-    ROUND_OF_16: "Octavos",
-    QUARTER_FINAL: "Cuartos",
-    SEMI_FINAL: "Semifinal",
-    THIRD_PLACE: "Tercer puesto",
-    FINAL: "Final",
-  };
-
-  return labels[stage] ?? stage;
-}
+import { formatStage, getMatchStatus } from "@/lib/domain/matches";
+import { formatDateTime } from "@/lib/format/date";
 
 export default async function AdminMatchesPage() {
   await requireAdmin();
@@ -86,7 +56,7 @@ export default async function AdminMatchesPage() {
                         {match.homeTeam} vs {match.awayTeam}
                       </td>
                       <td className="px-4 py-3">
-                        {new Date(match.kickoffAt).toLocaleString("es-PE")}
+                        {formatDateTime(match.kickoffAt)}
                       </td>
                       <td className="px-4 py-3">
                         {getMatchStatus(match)}

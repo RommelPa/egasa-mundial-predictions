@@ -2,6 +2,8 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { saveMatchResult } from "../actions";
+import { formatStage, isKnockoutStage } from "@/lib/domain/matches";
+import { UI_TEXT } from "@/lib/ui/text";
 
 type ResultFormProps = {
   matchId: string;
@@ -19,10 +21,6 @@ const initialState = {
   success: false,
   error: "",
 };
-
-function isKnockoutStage(stage: string) {
-  return stage !== "GROUP";
-}
 
 export function ResultForm({
   matchId,
@@ -48,19 +46,13 @@ export function ResultForm({
     initialState
   );
 
-  const showQualifiedTeam =
-    knockout &&
-    resultHome !== "" &&
-    resultAway !== "" &&
-    Number(resultHome) === Number(resultAway);
-
   return (
     <form action={formAction} className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
       <div>
         <h3 className="text-lg font-semibold">
           {homeTeam} vs {awayTeam}
         </h3>
-        <p className="mt-1 text-sm text-zinc-400">{stage}</p>
+        <p className="mt-1 text-sm text-zinc-400">{formatStage(stage)}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -105,13 +97,13 @@ export function ResultForm({
         </div>
       </div>
 
-      {showQualifiedTeam ? (
+      {knockout ? (
         <div>
           <label
             htmlFor={`qualifiedTeam-${matchId}`}
             className="mb-2 block text-sm font-medium text-zinc-200"
           >
-            Clasificado por penales
+            {UI_TEXT.labels.qualifiedTeam}
           </label>
           <select
             id={`qualifiedTeam-${matchId}`}
@@ -125,6 +117,9 @@ export function ResultForm({
             <option value={homeTeam}>{homeTeam}</option>
             <option value={awayTeam}>{awayTeam}</option>
           </select>
+          <p className="mt-2 text-xs text-zinc-400">
+            {UI_TEXT.helper.knockoutQualifiedTeam}
+          </p>
         </div>
       ) : null}
 
