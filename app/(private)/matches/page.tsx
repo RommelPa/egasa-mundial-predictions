@@ -4,11 +4,32 @@ import { requireAuth } from "@/lib/auth-guard";
 import { formatStage, getMatchStatus } from "@/lib/domain/matches";
 import { formatDateTime } from "@/lib/format/date";
 
+type MatchListRow = {
+  id: string;
+  matchNumber: number;
+  stage: string;
+  homeTeam: string;
+  awayTeam: string;
+  kickoffAt: Date;
+  resultHome: number | null;
+  resultAway: number | null;
+};
+
 export default async function MatchesPage() {
   await requireAuth();
 
-  const matches = await prisma.match.findMany({
+  const matches: MatchListRow[] = await prisma.match.findMany({
     orderBy: [{ kickoffAt: "asc" }, { matchNumber: "asc" }],
+    select: {
+      id: true,
+      matchNumber: true,
+      stage: true,
+      homeTeam: true,
+      awayTeam: true,
+      kickoffAt: true,
+      resultHome: true,
+      resultAway: true,
+    },
   });
 
   return (
@@ -43,7 +64,7 @@ export default async function MatchesPage() {
                 </tr>
               </thead>
               <tbody>
-                {matches.map((match) => {
+                {matches.map((match: MatchListRow) => {
                   const status = getMatchStatus(match);
 
                   return (

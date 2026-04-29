@@ -1,11 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
-import { buildRanking } from "@/lib/domain/scoring";
+import { buildRanking, type RankingRow } from "@/lib/domain/scoring";
+
+type RankingUser = {
+  id: string;
+  username: string;
+  predictions: Array<{
+    predictedHome: number;
+    predictedAway: number;
+    qualifiedTeam: string | null;
+    match: {
+      stage: string;
+      homeTeam: string;
+      awayTeam: string;
+      resultHome: number | null;
+      resultAway: number | null;
+      qualifiedTeam: string | null;
+    };
+  }>;
+};
 
 export default async function RankingPage() {
   await requireAuth();
 
-  const users = await prisma.user.findMany({
+  const users: RankingUser[] = await prisma.user.findMany({
     where: {
       active: true,
       role: "USER",
@@ -22,7 +40,7 @@ export default async function RankingPage() {
     },
   });
 
-  const ranking = buildRanking(users);
+  const ranking: RankingRow[] = buildRanking(users);
 
   return (
     <main>
@@ -51,7 +69,7 @@ export default async function RankingPage() {
                 </tr>
               </thead>
               <tbody>
-                {ranking.map((row, index) => (
+                {ranking.map((row: RankingRow, index: number) => (
                   <tr
                     key={row.userId}
                     className="border-b border-white/5 text-zinc-200"

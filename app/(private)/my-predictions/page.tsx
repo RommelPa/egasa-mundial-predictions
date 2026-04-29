@@ -6,10 +6,28 @@ import { formatStage, getMatchStatus } from "@/lib/domain/matches";
 import { formatDateTime } from "@/lib/format/date";
 import { UI_TEXT } from "@/lib/ui/text";
 
+type PredictionRow = {
+  id: string;
+  predictedHome: number;
+  predictedAway: number;
+  qualifiedTeam: string | null;
+  match: {
+    id: string;
+    matchNumber: number;
+    stage: string;
+    homeTeam: string;
+    awayTeam: string;
+    kickoffAt: Date;
+    resultHome: number | null;
+    resultAway: number | null;
+    qualifiedTeam: string | null;
+  };
+};
+
 export default async function MyPredictionsPage() {
   const session = await requireAuth();
 
-  const predictions = await prisma.prediction.findMany({
+  const predictions: PredictionRow[] = await prisma.prediction.findMany({
     where: {
       userId: session.user.id,
     },
@@ -64,7 +82,7 @@ export default async function MyPredictionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {predictions.map((prediction) => {
+                {predictions.map((prediction: PredictionRow) => {
                   const match = prediction.match;
                   const status = getMatchStatus(match);
                   const score = calculatePredictionScore(match, prediction);

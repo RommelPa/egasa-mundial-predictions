@@ -48,7 +48,7 @@ export default async function AdminResultsPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {matches.map((match) => (
+          {matches.map((match: MatchResultRow) => (
             <div
               key={match.id}
               className="rounded-2xl border border-white/10 bg-white/5 p-5"

@@ -2,9 +2,61 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { buildRanking, calculatePredictionScore } from "@/lib/domain/scoring";
+import { buildRanking, calculatePredictionScore, type RankingRow } from "@/lib/domain/scoring";
 import { formatStage, getMatchStatus } from "@/lib/domain/matches";
 import { formatDateTime } from "@/lib/format/date";
+
+type RankingUser = {
+  id: string;
+  username: string;
+  predictions: Array<{
+    predictedHome: number;
+    predictedAway: number;
+    qualifiedTeam: string | null;
+    match: {
+      stage: string;
+      homeTeam: string;
+      awayTeam: string;
+      resultHome: number | null;
+      resultAway: number | null;
+      qualifiedTeam: string | null;
+    };
+  }>;
+};
+
+type MatchCard = {
+  id: string;
+  matchNumber: number;
+  stage: string;
+  homeTeam: string;
+  awayTeam: string;
+  kickoffAt: Date;
+  resultHome: number | null;
+  resultAway: number | null;
+};
+
+type PredictionWithMatch = {
+  id: string;
+  predictedHome: number;
+  predictedAway: number;
+  qualifiedTeam: string | null;
+  match: {
+    id: string;
+    matchNumber: number;
+    stage: string;
+    homeTeam: string;
+    awayTeam: string;
+    kickoffAt: Date;
+    resultHome: number | null;
+    resultAway: number | null;
+    qualifiedTeam: string | null;
+  };
+};
+
+type FinishedPredictionCard = {
+  prediction: PredictionWithMatch;
+  score: ReturnType<typeof calculatePredictionScore>;
+};
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -29,10 +81,20 @@ export default async function DashboardPage() {
           },
         },
       },
-    }),
+    }) as Promise<RankingUser[]>,
     prisma.match.findMany({
       orderBy: [{ kickoffAt: "asc" }, { matchNumber: "asc" }],
-    }),
+      select: {
+        id: true,
+        matchNumber: true,
+        stage: true,
+        homeTeam: true,
+        awayTeam: true,
+        kickoffAt: true,
+        resultHome: true,
+        resultAway: true,
+      },
+    }) as Promise<MatchCard[]>,
     prisma.prediction.findMany({
       where: {
         userId: session.user.id,
@@ -52,22 +114,22 @@ export default async function DashboardPage() {
           },
         },
       ],
-    }),
+    }) as Promise<PredictionWithMatch[]>,
   ]);
 
-  const ranking = buildRanking(rankingUsers);
-  const myRankIndex = ranking.findIndex((row) => row.userId === session.user.id);
+  const ranking: RankingRow[] = buildRanking(rankingUsers);
+  const myRankIndex = ranking.findIndex((row: RankingRow) => row.userId === session.user.id);
   const myRank = myRankIndex >= 0 ? ranking[myRankIndex] : null;
   const myPosition = myRankIndex >= 0 ? myRankIndex + 1 : null;
 
-  const openMatches = upcomingMatches
-    .filter((match) => getMatchStatus(match) === "Abierto")
+  const openMatches: MatchCard[] = upcomingMatches
+    .filter((match: MatchCard) => getMatchStatus(match) === "Abierto")
     .slice(0, 5);
 
-  const finishedPredictions = recentPredictions
-    .filter((prediction) => getMatchStatus(prediction.match) === "Finalizado")
+  const finishedPredictions: FinishedPredictionCard[] = recentPredictions
+    .filter((prediction: PredictionWithMatch) => getMatchStatus(prediction.match) === "Finalizado")
     .slice(0, 5)
-    .map((prediction) => ({
+    .map((prediction: PredictionWithMatch) => ({
       prediction,
       score: calculatePredictionScore(prediction.match, prediction),
     }));
@@ -89,15 +151,15 @@ export default async function DashboardPage() {
     });
 
     const openMatchesCount = upcomingMatches.filter(
-      (match) => getMatchStatus(match) === "Abierto"
+      (match: MatchCard) => getMatchStatus(match) === "Abierto"
     ).length;
 
     const closedWithoutResultCount = upcomingMatches.filter(
-      (match) => getMatchStatus(match) === "Cerrado"
+      (match: MatchCard) => getMatchStatus(match) === "Cerrado"
     ).length;
 
     const finishedMatchesCount = upcomingMatches.filter(
-      (match) => getMatchStatus(match) === "Finalizado"
+      (match: MatchCard) => getMatchStatus(match) === "Finalizado"
     ).length;
 
     adminStats = {
@@ -188,7 +250,7 @@ export default async function DashboardPage() {
 
             <div className="mt-6 space-y-4">
               {openMatches.length > 0 ? (
-                openMatches.map((match) => (
+                openMatches.map((match: MatchCard) => (
                   <div
                     key={match.id}
                     className="rounded-xl border border-white/10 bg-black/20 p-4"
@@ -242,7 +304,7 @@ export default async function DashboardPage() {
 
             <div className="mt-6 space-y-4">
               {finishedPredictions.length > 0 ? (
-                finishedPredictions.map(({ prediction, score }) => (
+                finishedPredictions.map(({ prediction, score }: FinishedPredictionCard) => (
                   <div
                     key={prediction.id}
                     className="rounded-xl border border-white/10 bg-black/20 p-4"
