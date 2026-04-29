@@ -2,13 +2,24 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
-import { Stage } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 type ActionState = {
   success?: boolean;
   error?: string;
 };
+
+const ALLOWED_STAGES = [
+  "GROUP",
+  "ROUND_OF_32",
+  "ROUND_OF_16",
+  "QUARTER_FINAL",
+  "SEMI_FINAL",
+  "THIRD_PLACE",
+  "FINAL",
+] as const;
+
+type StageValue = (typeof ALLOWED_STAGES)[number];
 
 export async function createMatch(
   _prevState: ActionState,
@@ -42,17 +53,7 @@ export async function createMatch(
     return { error: "El equipo local y visitante no pueden ser el mismo." };
   }
 
-  if (
-    ![
-      "GROUP",
-      "ROUND_OF_32",
-      "ROUND_OF_16",
-      "QUARTER_FINAL",
-      "SEMI_FINAL",
-      "THIRD_PLACE",
-      "FINAL",
-    ].includes(stageValue)
-  ) {
+  if (!ALLOWED_STAGES.includes(stageValue as StageValue)) {
     return { error: "Fase inválida." };
   }
 
@@ -73,7 +74,7 @@ export async function createMatch(
   await prisma.match.create({
     data: {
       matchNumber,
-      stage: stageValue as Stage,
+      stage: stageValue as StageValue,
       homeTeam,
       awayTeam,
       kickoffAt,
