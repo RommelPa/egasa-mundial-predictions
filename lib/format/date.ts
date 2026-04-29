@@ -84,19 +84,21 @@ export function parseDatetimeLocal(value: string) {
 
   const [, year, month, day, hour, minute] = match;
 
-  const date = new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-    Number(hour),
-    Number(minute),
-    0,
-    0
+  const utcDate = new Date(
+    Date.UTC(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour) + 5,
+      Number(minute),
+      0,
+      0
+    )
   );
 
-  if (Number.isNaN(date.getTime())) {
+  if (Number.isNaN(utcDate.getTime())) {
     return null;
   }
 
-  return date;
+  return utcDate;
 }
