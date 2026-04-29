@@ -8,6 +8,33 @@ import { calculatePredictionScore } from "@/lib/domain/scoring";
 import { formatDateTime } from "@/lib/format/date";
 import { UI_TEXT } from "@/lib/ui/text";
 
+type MatchPredictionRow = {
+  id: string;
+  userId: string;
+  predictedHome: number;
+  predictedAway: number;
+  qualifiedTeam: string | null;
+  createdAt: Date;
+  user: {
+    id: string;
+    username: string;
+    role: string;
+    active: boolean;
+  };
+};
+
+type MatchDetail = {
+  id: string;
+  stage: string;
+  homeTeam: string;
+  awayTeam: string;
+  kickoffAt: Date;
+  resultHome: number | null;
+  resultAway: number | null;
+  qualifiedTeam: string | null;
+  predictions: MatchPredictionRow[];
+};
+
 export default async function PredictMatchPage({
   params,
 }: {
@@ -16,11 +43,25 @@ export default async function PredictMatchPage({
   const session = await requireAuth();
   const { matchId } = await params;
 
-  const match = await prisma.match.findUnique({
+  const match: MatchDetail | null = await prisma.match.findUnique({
     where: { id: matchId },
-    include: {
+    select: {
+      id: true,
+      stage: true,
+      homeTeam: true,
+      awayTeam: true,
+      kickoffAt: true,
+      resultHome: true,
+      resultAway: true,
+      qualifiedTeam: true,
       predictions: {
-        include: {
+        select: {
+          id: true,
+          userId: true,
+          predictedHome: true,
+          predictedAway: true,
+          qualifiedTeam: true,
+          createdAt: true,
           user: {
             select: {
               id: true,
@@ -42,16 +83,20 @@ export default async function PredictMatchPage({
   }
 
   const myPrediction =
-    match.predictions.find((prediction) => prediction.userId === session.user.id) ??
-    null;
+    match.predictions.find(
+      (prediction: MatchPredictionRow) => prediction.userId === session.user.id
+    ) ?? null;
 
   const status = getMatchStatus(match);
   const isFinished = status === UI_TEXT.matchStatus.finished;
   const isClosed = status !== UI_TEXT.matchStatus.open;
 
-  const visiblePredictions = isClosed
+  const visiblePredictions: MatchPredictionRow[] = isClosed
     ? match.predictions
-        .filter((prediction) => prediction.user.active && prediction.user.role === "USER")
+        .filter(
+          (prediction: MatchPredictionRow) =>
+            prediction.user.active && prediction.user.role === "USER"
+        )
         .sort((a, b) => a.user.username.localeCompare(b.user.username, "es"))
     : [];
 
@@ -215,7 +260,7 @@ export default async function PredictMatchPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {visiblePredictions.map((prediction) => {
+                  {visiblePredictions.map((prediction: MatchPredictionRow) => {
                     const score = isFinished
                       ? calculatePredictionScore(match, prediction)
                       : null;
