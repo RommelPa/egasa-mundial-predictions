@@ -2,9 +2,14 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { buildRanking, calculatePredictionScore, type RankingRow } from "@/lib/domain/scoring";
+import {
+  buildRanking,
+  calculatePredictionScore,
+  type RankingRow,
+} from "@/lib/domain/scoring";
 import { formatStage, getMatchStatus } from "@/lib/domain/matches";
 import { formatDateTime } from "@/lib/format/date";
+import { UI_TEXT } from "@/lib/ui/text";
 
 type RankingUser = {
   id: string;
@@ -118,16 +123,21 @@ export default async function DashboardPage() {
   ]);
 
   const ranking: RankingRow[] = buildRanking(rankingUsers);
-  const myRankIndex = ranking.findIndex((row: RankingRow) => row.userId === session.user.id);
+  const myRankIndex = ranking.findIndex(
+    (row: RankingRow) => row.userId === session.user.id
+  );
   const myRank = myRankIndex >= 0 ? ranking[myRankIndex] : null;
   const myPosition = myRankIndex >= 0 ? myRankIndex + 1 : null;
 
   const openMatches: MatchCard[] = upcomingMatches
-    .filter((match: MatchCard) => getMatchStatus(match) === "Abierto")
+    .filter((match: MatchCard) => getMatchStatus(match) === UI_TEXT.matchStatus.open)
     .slice(0, 5);
 
   const finishedPredictions: FinishedPredictionCard[] = recentPredictions
-    .filter((prediction: PredictionWithMatch) => getMatchStatus(prediction.match) === "Finalizado")
+    .filter(
+      (prediction: PredictionWithMatch) =>
+        getMatchStatus(prediction.match) === UI_TEXT.matchStatus.finished
+    )
     .slice(0, 5)
     .map((prediction: PredictionWithMatch) => ({
       prediction,
@@ -151,15 +161,15 @@ export default async function DashboardPage() {
     });
 
     const openMatchesCount = upcomingMatches.filter(
-      (match: MatchCard) => getMatchStatus(match) === "Abierto"
+      (match: MatchCard) => getMatchStatus(match) === UI_TEXT.matchStatus.open
     ).length;
 
     const closedWithoutResultCount = upcomingMatches.filter(
-      (match: MatchCard) => getMatchStatus(match) === "Cerrado"
+      (match: MatchCard) => getMatchStatus(match) === UI_TEXT.matchStatus.closed
     ).length;
 
     const finishedMatchesCount = upcomingMatches.filter(
-      (match: MatchCard) => getMatchStatus(match) === "Finalizado"
+      (match: MatchCard) => getMatchStatus(match) === UI_TEXT.matchStatus.finished
     ).length;
 
     adminStats = {
@@ -178,29 +188,27 @@ export default async function DashboardPage() {
             Panel principal
           </span>
 
-          <h1 className="mt-6 text-4xl font-bold tracking-tight">
+          <h1 className="mt-6 text-4xl font-bold tracking-tight sm:text-5xl">
             Bienvenido, {session.user.username}
           </h1>
 
-          <p className="mt-4 max-w-3xl text-zinc-400">
-            Aquí tienes tu resumen actual dentro del prode y los siguientes pasos
-            importantes para no perder puntos.
+          <p className="mt-4 max-w-3xl text-base leading-7 text-zinc-400">
+            Aquí tienes tu resumen actual dentro del prode y los próximos pasos
+            clave para no perder puntos.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10">
             <p className="text-sm text-zinc-400">Posición actual</p>
-            <p className="mt-3 text-3xl font-bold text-white">
-              {myPosition ?? "—"}
-            </p>
+            <p className="mt-3 text-3xl font-bold text-white">{myPosition ?? "—"}</p>
             <p className="mt-2 text-xs text-zinc-500">
               Ranking global entre usuarios activos
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <p className="text-sm text-zinc-400">Puntos</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10">
+            <p className="text-sm text-zinc-400">{UI_TEXT.labels.points}</p>
             <p className="mt-3 text-3xl font-bold text-white">
               {myRank?.totalPoints ?? 0}
             </p>
@@ -209,7 +217,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10">
             <p className="text-sm text-zinc-400">Exactos</p>
             <p className="mt-3 text-3xl font-bold text-white">
               {myRank?.exactHits ?? 0}
@@ -219,7 +227,7 @@ export default async function DashboardPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/10">
             <p className="text-sm text-zinc-400">Clasificados correctos</p>
             <p className="mt-3 text-3xl font-bold text-white">
               {myRank?.qualifiedHits ?? 0}
@@ -231,7 +239,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="mt-10 grid gap-8 xl:grid-cols-[1.2fr_1fr]">
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold">Próximos partidos abiertos</h2>
@@ -253,11 +261,11 @@ export default async function DashboardPage() {
                 openMatches.map((match: MatchCard) => (
                   <div
                     key={match.id}
-                    className="rounded-xl border border-white/10 bg-black/20 p-4"
+                    className="rounded-2xl border border-white/10 bg-black/20 p-4"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div>
-                        <p className="text-sm text-zinc-400">
+                        <p className="text-sm text-zinc-500">
                           #{match.matchNumber} · {formatStage(match.stage)}
                         </p>
                         <p className="mt-1 text-lg font-semibold text-white">
@@ -270,7 +278,7 @@ export default async function DashboardPage() {
 
                       <Link
                         href={`/matches/${match.id}/predict`}
-                        className="inline-flex rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium transition hover:bg-white/10"
+                        className="inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
                       >
                         Pronosticar
                       </Link>
@@ -278,14 +286,14 @@ export default async function DashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
-                  No hay partidos abiertos en este momento.
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
+                  {UI_TEXT.emptyStates.noOpenMatches}
                 </div>
               )}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold">Últimos partidos puntuados</h2>
@@ -304,64 +312,67 @@ export default async function DashboardPage() {
 
             <div className="mt-6 space-y-4">
               {finishedPredictions.length > 0 ? (
-                finishedPredictions.map(({ prediction, score }: FinishedPredictionCard) => (
-                  <div
-                    key={prediction.id}
-                    className="rounded-xl border border-white/10 bg-black/20 p-4"
-                  >
-                    <p className="text-sm text-zinc-400">
-                      #{prediction.match.matchNumber} ·{" "}
-                      {formatStage(prediction.match.stage)}
-                    </p>
-
-                    <p className="mt-1 text-base font-semibold text-white">
-                      {prediction.match.homeTeam} vs {prediction.match.awayTeam}
-                    </p>
-
-                    <p className="mt-3 text-sm text-zinc-300">
-                      Tu pronóstico: {prediction.match.homeTeam}{" "}
-                      {prediction.predictedHome} - {prediction.predictedAway}{" "}
-                      {prediction.match.awayTeam}
-                    </p>
-
-                    {prediction.qualifiedTeam ? (
-                      <p className="mt-1 text-sm text-zinc-400">
-                        Clasifica: {prediction.qualifiedTeam}
-                      </p>
-                    ) : null}
-
-                    <p className="mt-3 text-sm text-zinc-300">
-                      Resultado oficial: {prediction.match.homeTeam}{" "}
-                      {prediction.match.resultHome} - {prediction.match.resultAway}{" "}
-                      {prediction.match.awayTeam}
-                    </p>
-
-                    {prediction.match.qualifiedTeam ? (
-                      <p className="mt-1 text-sm text-zinc-400">
-                        Clasifica: {prediction.match.qualifiedTeam}
-                      </p>
-                    ) : null}
-
-                    <div className="mt-4 flex items-center justify-between gap-4">
-                      <p className="text-sm font-semibold text-white">
-                        Puntos: {score.points}
+                finishedPredictions.map(
+                  ({ prediction, score }: FinishedPredictionCard) => (
+                    <div
+                      key={prediction.id}
+                      className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                    >
+                      <p className="text-sm text-zinc-500">
+                        #{prediction.match.matchNumber} ·{" "}
+                        {formatStage(prediction.match.stage)}
                       </p>
 
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                          score.points > 0
-                            ? "bg-emerald-500/10 text-emerald-300"
-                            : "bg-zinc-800 text-zinc-300"
-                        }`}
-                      >
-                        {score.reason}
-                      </span>
+                      <p className="mt-1 text-base font-semibold text-white">
+                        {prediction.match.homeTeam} vs {prediction.match.awayTeam}
+                      </p>
+
+                      <p className="mt-3 text-sm text-zinc-300">
+                        Tu pronóstico: {prediction.match.homeTeam}{" "}
+                        {prediction.predictedHome} - {prediction.predictedAway}{" "}
+                        {prediction.match.awayTeam}
+                      </p>
+
+                      {prediction.qualifiedTeam ? (
+                        <p className="mt-1 text-sm text-zinc-400">
+                          {UI_TEXT.labels.qualifiedTeam}: {prediction.qualifiedTeam}
+                        </p>
+                      ) : null}
+
+                      <p className="mt-3 text-sm text-zinc-300">
+                        {UI_TEXT.labels.officialResult}: {prediction.match.homeTeam}{" "}
+                        {prediction.match.resultHome} -{" "}
+                        {prediction.match.resultAway} {prediction.match.awayTeam}
+                      </p>
+
+                      {prediction.match.qualifiedTeam ? (
+                        <p className="mt-1 text-sm text-zinc-400">
+                          {UI_TEXT.labels.qualifiedTeam}:{" "}
+                          {prediction.match.qualifiedTeam}
+                        </p>
+                      ) : null}
+
+                      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm font-semibold text-white">
+                          {UI_TEXT.labels.points}: {score.points}
+                        </p>
+
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                            score.points > 0
+                              ? "bg-emerald-500/10 text-emerald-300"
+                              : "bg-zinc-800 text-zinc-300"
+                          }`}
+                        >
+                          {score.reason}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  )
+                )
               ) : (
-                <div className="rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
-                  Aún no tienes partidos finalizados con puntaje calculado.
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-400">
+                  {UI_TEXT.emptyStates.noFinishedPredictions}
                 </div>
               )}
             </div>
@@ -369,7 +380,7 @@ export default async function DashboardPage() {
         </div>
 
         {isAdmin && adminStats ? (
-          <section className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6">
+          <section className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
             <div className="mb-6">
               <h2 className="text-xl font-semibold">Resumen operativo admin</h2>
               <p className="mt-2 text-sm text-zinc-400">
@@ -378,30 +389,28 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="text-sm text-zinc-400">Usuarios activos</p>
                 <p className="mt-2 text-2xl font-bold text-white">
                   {adminStats.activeUsers}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="text-sm text-zinc-400">Partidos abiertos</p>
                 <p className="mt-2 text-2xl font-bold text-white">
                   {adminStats.openMatchesCount}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-                <p className="text-sm text-zinc-400">
-                  Cerrados sin resultado
-                </p>
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <p className="text-sm text-zinc-400">Cerrados sin resultado</p>
                 <p className="mt-2 text-2xl font-bold text-white">
                   {adminStats.closedWithoutResultCount}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="text-sm text-zinc-400">Finalizados</p>
                 <p className="mt-2 text-2xl font-bold text-white">
                   {adminStats.finishedMatchesCount}

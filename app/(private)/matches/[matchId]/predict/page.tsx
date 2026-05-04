@@ -112,26 +112,39 @@ export default async function PredictMatchPage({
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-zinc-300">
-            {formatStage(match.stage)}
-          </span>
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <span className="inline-flex rounded-full border border-white/10 bg-black/20 px-3 py-1 text-sm text-zinc-300">
+                {formatStage(match.stage)}
+              </span>
 
-          <h1 className="mt-4 text-4xl font-bold tracking-tight">
-            {match.homeTeam} vs {match.awayTeam}
-          </h1>
+              <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+                {match.homeTeam} vs {match.awayTeam}
+              </h1>
 
-          <p className="mt-3 text-zinc-400">
-            Inicio: {formatDateTime(match.kickoffAt)}
-          </p>
+              <p className="mt-4 text-zinc-400">
+                Inicio: {formatDateTime(match.kickoffAt)}
+              </p>
 
-          <p className="mt-2 text-zinc-400">
-            {UI_TEXT.labels.status}:{" "}
-            <span className="font-semibold text-zinc-200">{status}</span>
-          </p>
+              <div className="mt-3">
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                    status === UI_TEXT.matchStatus.open
+                      ? "bg-emerald-500/10 text-emerald-300"
+                      : status === UI_TEXT.matchStatus.closed
+                      ? "bg-amber-500/10 text-amber-300"
+                      : "bg-zinc-800 text-zinc-300"
+                  }`}
+                >
+                  {UI_TEXT.labels.status}: {status}
+                </span>
+              </div>
+            </div>
+          </div>
 
           {isFinished ? (
-            <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-zinc-100">
+            <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-zinc-100">
               <p>
                 {UI_TEXT.labels.officialResult}: {match.homeTeam} {match.resultHome} -{" "}
                 {match.resultAway} {match.awayTeam}
@@ -148,7 +161,7 @@ export default async function PredictMatchPage({
         <div className="mt-8">
           {isClosed ? (
             <div
-              className={`rounded-2xl p-6 ${
+              className={`rounded-3xl p-6 shadow-xl shadow-black/10 ${
                 isFinished
                   ? "border border-emerald-500/20 bg-emerald-500/10"
                   : "border border-amber-500/20 bg-amber-500/10"
@@ -163,7 +176,7 @@ export default async function PredictMatchPage({
               </h2>
 
               <p
-                className={`mt-3 text-sm ${
+                className={`mt-3 text-sm leading-6 ${
                   isFinished ? "text-emerald-100/80" : "text-amber-100/80"
                 }`}
               >
@@ -172,33 +185,33 @@ export default async function PredictMatchPage({
                   : "Este partido ya inició. Ya no puedes modificar tu pronóstico, pero ya puedes ver las predicciones registradas."}
               </p>
 
-              <div className="mt-6 rounded-xl border border-white/10 bg-black/20 p-4">
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-5">
                 <h3 className="text-sm font-semibold text-white">Tu pronóstico</h3>
 
                 {myPrediction ? (
-                  <div className="mt-3 space-y-2 text-sm text-zinc-200">
-                    <p>
+                  <div className="mt-4 space-y-2 text-sm text-zinc-200">
+                    <p className="text-base font-medium text-white">
                       {match.homeTeam} {myPrediction.predictedHome} -{" "}
                       {myPrediction.predictedAway} {match.awayTeam}
                     </p>
 
                     {myPrediction.qualifiedTeam ? (
-                      <p>
+                      <p className="text-zinc-300">
                         {UI_TEXT.labels.qualifiedTeam}: {myPrediction.qualifiedTeam}
                       </p>
                     ) : null}
 
                     {isFinished ? (
-                      <div className="pt-2">
+                      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-4">
                         {(() => {
                           const myScore = calculatePredictionScore(match, myPrediction);
 
                           return (
                             <>
-                              <p className="font-semibold">
+                              <p className="font-semibold text-white">
                                 {UI_TEXT.labels.points}: {myScore.points}
                               </p>
-                              <p className="text-zinc-300">{myScore.reason}</p>
+                              <p className="mt-1 text-zinc-300">{myScore.reason}</p>
                             </>
                           );
                         })()}
@@ -232,7 +245,7 @@ export default async function PredictMatchPage({
         </div>
 
         {isClosed ? (
-          <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
+          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
             <h2 className="text-xl font-semibold">Predicciones del partido</h2>
             <p className="mt-2 text-sm text-zinc-400">
               {isFinished
@@ -242,18 +255,14 @@ export default async function PredictMatchPage({
 
             <div className="mt-6 overflow-x-auto">
               <table className="min-w-full text-left text-sm">
-                <thead className="border-b border-white/10 text-zinc-400">
+                <thead className="border-b border-white/10 text-zinc-500">
                   <tr>
                     <th className="px-4 py-3 font-medium">Usuario</th>
                     <th className="px-4 py-3 font-medium">{UI_TEXT.labels.prediction}</th>
-                    <th className="px-4 py-3 font-medium">
-                      {UI_TEXT.labels.qualifiedTeam}
-                    </th>
+                    <th className="px-4 py-3 font-medium">{UI_TEXT.labels.qualifiedTeam}</th>
                     {isFinished ? (
                       <>
-                        <th className="px-4 py-3 font-medium">
-                          {UI_TEXT.labels.points}
-                        </th>
+                        <th className="px-4 py-3 font-medium">{UI_TEXT.labels.points}</th>
                         <th className="px-4 py-3 font-medium">Detalle</th>
                       </>
                     ) : null}
@@ -268,25 +277,25 @@ export default async function PredictMatchPage({
                     return (
                       <tr
                         key={prediction.id}
-                        className="border-b border-white/5 text-zinc-200"
+                        className="border-b border-white/5 text-zinc-200 transition hover:bg-white/[0.03]"
                       >
-                        <td className="px-4 py-3 font-medium">
+                        <td className="px-4 py-4 font-medium text-white">
                           {prediction.user.username}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
                           {match.homeTeam} {prediction.predictedHome} -{" "}
                           {prediction.predictedAway} {match.awayTeam}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-4">
                           {prediction.qualifiedTeam ?? "—"}
                         </td>
 
                         {isFinished ? (
                           <>
-                            <td className="px-4 py-3 font-semibold">
+                            <td className="px-4 py-4 font-semibold">
                               {score?.points ?? 0}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-4">
                               <span
                                 className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                                   (score?.points ?? 0) > 0

@@ -11,7 +11,10 @@ export default async function PrivateLayout({
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <AuthenticatedNav />
-      {children}
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.02] to-transparent" />
+        {children}
+      </div>
     </div>
   );
 }

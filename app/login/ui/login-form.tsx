@@ -39,8 +39,9 @@ export function LoginForm() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none ring-0 placeholder:text-zinc-500"
+          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:bg-zinc-900 focus:ring-2 focus:ring-emerald-500/10 placeholder:text-zinc-500"
           placeholder="rommel"
+          autoComplete="username"
           required
         />
       </div>
@@ -57,16 +58,17 @@ export function LoginForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none ring-0 placeholder:text-zinc-500"
+          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:bg-zinc-900 focus:ring-2 focus:ring-emerald-500/10 placeholder:text-zinc-500"
           placeholder="••••••••"
+          autoComplete="current-password"
           required
         />
       </div>
 
       {error ? (
-        <p className="text-sm text-red-400">
-          Credenciales inválidas. Intenta nuevamente.
-        </p>
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          Credenciales inválidas. Verifica tu usuario y contraseña.
+        </div>
       ) : null}
 
       <button

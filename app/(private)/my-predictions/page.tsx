@@ -55,7 +55,7 @@ export default async function MyPredictionsPage() {
           <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-zinc-300">
             Seguimiento
           </span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
             {UI_TEXT.labels.myPredictions}
           </h1>
           <p className="mt-3 max-w-2xl text-zinc-400">
@@ -63,10 +63,10 @@ export default async function MyPredictionsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-white/10 text-zinc-400">
+              <thead className="border-b border-white/10 text-zinc-500">
                 <tr>
                   <th className="px-4 py-3 font-medium">#</th>
                   <th className="px-4 py-3 font-medium">{UI_TEXT.labels.stage}</th>
@@ -96,18 +96,32 @@ export default async function MyPredictionsPage() {
                   return (
                     <tr
                       key={prediction.id}
-                      className="border-b border-white/5 text-zinc-200 align-top"
+                      className="border-b border-white/5 text-zinc-200 align-top transition hover:bg-white/[0.03]"
                     >
-                      <td className="px-4 py-3">{match.matchNumber}</td>
-                      <td className="px-4 py-3">{formatStage(match.stage)}</td>
-                      <td className="px-4 py-3">
-                        <div>{match.homeTeam} vs {match.awayTeam}</div>
+                      <td className="px-4 py-4">{match.matchNumber}</td>
+                      <td className="px-4 py-4">{formatStage(match.stage)}</td>
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-white">
+                          {match.homeTeam} vs {match.awayTeam}
+                        </div>
                         <div className="mt-1 text-xs text-zinc-400">
                           {formatDateTime(match.kickoffAt)}
                         </div>
                       </td>
-                      <td className="px-4 py-3">{status}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                            status === UI_TEXT.matchStatus.open
+                              ? "bg-emerald-500/10 text-emerald-300"
+                              : status === UI_TEXT.matchStatus.closed
+                              ? "bg-amber-500/10 text-amber-300"
+                              : "bg-zinc-800 text-zinc-300"
+                          }`}
+                        >
+                          {status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
                         <div>{predictionLabel}</div>
                         {prediction.qualifiedTeam ? (
                           <div className="mt-1 text-xs text-zinc-400">
@@ -115,7 +129,7 @@ export default async function MyPredictionsPage() {
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
                         <div>{resultLabel}</div>
                         {match.qualifiedTeam ? (
                           <div className="mt-1 text-xs text-zinc-400">
@@ -123,10 +137,10 @@ export default async function MyPredictionsPage() {
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-4 py-3 font-semibold">
+                      <td className="px-4 py-4 font-semibold">
                         {score.scored ? score.points : "—"}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                             score.scored
@@ -139,7 +153,7 @@ export default async function MyPredictionsPage() {
                           {score.reason}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-4">
                         <Link
                           href={`/matches/${match.id}/predict`}
                           className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium transition hover:bg-white/10"

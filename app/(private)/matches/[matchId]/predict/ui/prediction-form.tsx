@@ -47,7 +47,7 @@ export function PredictionForm({
   );
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
       <h2 className="text-xl font-semibold">Tu pronóstico</h2>
       <p className="mt-2 text-sm text-zinc-400">
         Puedes guardar o actualizar tu predicción para este partido.
@@ -69,7 +69,7 @@ export function PredictionForm({
               min="0"
               value={predictedHome}
               onChange={(e) => setPredictedHome(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
               placeholder="0"
               required
             />
@@ -89,7 +89,7 @@ export function PredictionForm({
               min="0"
               value={predictedAway}
               onChange={(e) => setPredictedAway(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
               placeholder="0"
               required
             />
@@ -97,7 +97,7 @@ export function PredictionForm({
         </div>
 
         {knockout ? (
-          <div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
             <label
               htmlFor="qualifiedTeam"
               className="mb-2 block text-sm font-medium text-zinc-200"
@@ -109,7 +109,7 @@ export function PredictionForm({
               name="qualifiedTeam"
               value={qualifiedTeam}
               onChange={(e) => setQualifiedTeam(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
               required
             >
               <option value="">Selecciona un equipo</option>
@@ -123,13 +123,15 @@ export function PredictionForm({
         ) : null}
 
         {state.error ? (
-          <p className="text-sm text-red-400">{state.error}</p>
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {state.error}
+          </div>
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-emerald-400">
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
             Pronóstico guardado correctamente.
-          </p>
+          </div>
         ) : null}
 
         <button

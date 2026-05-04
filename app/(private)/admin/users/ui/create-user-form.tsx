@@ -19,7 +19,7 @@ export function CreateUserForm() {
   }, [state.success]);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
       <h2 className="text-xl font-semibold">Crear usuario</h2>
       <p className="mt-2 text-sm text-zinc-400">
         Crea manualmente usuarios para participar en el prode.
@@ -37,7 +37,7 @@ export function CreateUserForm() {
             id="username"
             name="username"
             type="text"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             placeholder="antonio"
             required
           />
@@ -54,7 +54,7 @@ export function CreateUserForm() {
             id="password"
             name="password"
             type="password"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             placeholder="••••••••"
             required
           />
@@ -71,14 +71,14 @@ export function CreateUserForm() {
             id="role"
             name="role"
             defaultValue="USER"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
           >
             <option value="USER">USER</option>
             <option value="ADMIN">ADMIN</option>
           </select>
         </div>
 
-        <label className="flex items-center gap-3 text-sm text-zinc-300">
+        <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-zinc-300">
           <input
             type="checkbox"
             name="active"
@@ -89,13 +89,15 @@ export function CreateUserForm() {
         </label>
 
         {state.error ? (
-          <p className="text-sm text-red-400">{state.error}</p>
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {state.error}
+          </div>
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-emerald-400">
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
             Usuario creado correctamente.
-          </p>
+          </div>
         ) : null}
 
         <button

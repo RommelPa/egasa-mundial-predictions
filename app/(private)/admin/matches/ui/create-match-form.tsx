@@ -22,7 +22,7 @@ export function CreateMatchForm() {
   }, [state.success]);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
       <h2 className="text-xl font-semibold">Crear partido</h2>
       <p className="mt-2 text-sm text-zinc-400">
         Registra manualmente partidos del Mundial 2026.
@@ -41,7 +41,7 @@ export function CreateMatchForm() {
             name="matchNumber"
             type="number"
             min="1"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             placeholder="1"
             required
           />
@@ -58,7 +58,7 @@ export function CreateMatchForm() {
             id="stage"
             name="stage"
             defaultValue="GROUP"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
           >
             <option value="GROUP">Grupos</option>
             <option value="ROUND_OF_32">Dieciseisavos</option>
@@ -81,7 +81,7 @@ export function CreateMatchForm() {
             id="homeTeam"
             name="homeTeam"
             type="text"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             placeholder="Brasil"
             required
           />
@@ -98,7 +98,7 @@ export function CreateMatchForm() {
             id="awayTeam"
             name="awayTeam"
             type="text"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             placeholder="Alemania"
             required
           />
@@ -115,19 +115,21 @@ export function CreateMatchForm() {
             id="kickoffAt"
             name="kickoffAt"
             type="datetime-local"
-            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm outline-none"
+            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
             required
           />
         </div>
 
         {state.error ? (
-          <p className="text-sm text-red-400">{state.error}</p>
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {state.error}
+          </div>
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-emerald-400">
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
             Partido creado correctamente.
-          </p>
+          </div>
         ) : null}
 
         <button
