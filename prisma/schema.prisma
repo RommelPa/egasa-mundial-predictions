@@ -26,6 +26,7 @@ model Match {
   id            String       @id @default(cuid())
   matchNumber   Int          @unique
   stage         Stage
+  groupName     String?
   homeTeam      String
   awayTeam      String
   kickoffAt     DateTime

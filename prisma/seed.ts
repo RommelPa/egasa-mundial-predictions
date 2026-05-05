@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 
 async function main() {
-  const adminUsername = "rommel";
+  const adminUsername = "admin";
   const adminPassword = process.env.ADMIN_SEED_PASSWORD;
 
   if (!adminPassword) {

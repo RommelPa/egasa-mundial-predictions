@@ -1,8 +1,15 @@
 @import "tailwindcss";
+@import "flag-icons/css/flag-icons.min.css";
 
 :root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+  --background: #0f1111;
+  --foreground: #f4f7fb;
+
+  --wc-green: #3cac3b;
+  --wc-blue: #2a398d;
+  --wc-red: #e61d25;
+  --wc-gray-light: #d1d4d1;
+  --wc-gray-dark: #474a4a;
 }
 
 @theme inline {
@@ -23,14 +30,16 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(16, 185, 129, 0.08), transparent 22%),
-    var(--background);
+    radial-gradient(circle at top left, rgba(60, 172, 59, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(230, 29, 37, 0.14), transparent 26%),
+    radial-gradient(circle at bottom center, rgba(42, 57, 141, 0.22), transparent 28%),
+    linear-gradient(180deg, #101314 0%, #11161e 45%, #0f1111 100%);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
 ::selection {
-  background: rgba(16, 185, 129, 0.28);
+  background: rgba(60, 172, 59, 0.28);
   color: #ffffff;
 }
 
@@ -66,14 +75,14 @@ table {
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #11161e;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(209, 212, 209, 0.18);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(209, 212, 209, 0.3);
 }

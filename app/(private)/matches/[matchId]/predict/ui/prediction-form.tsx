@@ -4,6 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { savePrediction } from "../../actions";
 import { isKnockoutStage } from "@/lib/domain/matches";
 import { UI_TEXT } from "@/lib/ui/text";
+import { TeamNameWithFlag } from "@/components/teams/team-name-with-flag";
 
 type PredictionFormProps = {
   matchId: string;
@@ -47,60 +48,89 @@ export function PredictionForm({
   );
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
-      <h2 className="text-xl font-semibold">Tu pronóstico</h2>
-      <p className="mt-2 text-sm text-zinc-400">
-        Puedes guardar o actualizar tu predicción para este partido.
-      </p>
+    <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-6 shadow-2xl shadow-black/20">
+      <div className="mb-6">
+        <h2 className="text-2xl font-black text-white">Tu pronóstico</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+          Define tu marcador antes del inicio. Si el partido es de eliminación
+          directa y termina empatado, también debes indicar qué equipo clasifica.
+        </p>
+      </div>
 
-      <form action={formAction} className="mt-6 space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="predictedHome"
-              className="mb-2 block text-sm font-medium text-zinc-200"
-            >
-              {homeTeam}
-            </label>
-            <input
-              id="predictedHome"
-              name="predictedHome"
-              type="number"
-              min="0"
-              value={predictedHome}
-              onChange={(e) => setPredictedHome(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
-              placeholder="0"
-              required
-            />
+      <form action={formAction} className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+          <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
+            <div className="text-white">
+              <TeamNameWithFlag
+                teamName={homeTeam}
+                className="text-lg font-bold"
+                flagClassName="h-5 w-7"
+              />
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="predictedHome"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-400"
+              >
+                Goles local
+              </label>
+              <input
+                id="predictedHome"
+                name="predictedHome"
+                type="number"
+                min="0"
+                value={predictedHome}
+                onChange={(e) => setPredictedHome(e.target.value)}
+                className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-4 text-center text-3xl font-black text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
+                placeholder="0"
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="predictedAway"
-              className="mb-2 block text-sm font-medium text-zinc-200"
-            >
-              {awayTeam}
-            </label>
-            <input
-              id="predictedAway"
-              name="predictedAway"
-              type="number"
-              min="0"
-              value={predictedAway}
-              onChange={(e) => setPredictedAway(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
-              placeholder="0"
-              required
-            />
+          <div className="flex items-center justify-center">
+            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-black uppercase tracking-[0.25em] text-zinc-400">
+              VS
+            </span>
+          </div>
+
+          <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
+            <div className="text-white">
+              <TeamNameWithFlag
+                teamName={awayTeam}
+                className="text-lg font-bold"
+                flagClassName="h-5 w-7"
+              />
+            </div>
+
+            <div className="mt-5">
+              <label
+                htmlFor="predictedAway"
+                className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-400"
+              >
+                Goles visitante
+              </label>
+              <input
+                id="predictedAway"
+                name="predictedAway"
+                type="number"
+                min="0"
+                value={predictedAway}
+                onChange={(e) => setPredictedAway(e.target.value)}
+                className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-4 text-center text-3xl font-black text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
+                placeholder="0"
+                required
+              />
+            </div>
           </div>
         </div>
 
         {knockout ? (
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+          <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
             <label
               htmlFor="qualifiedTeam"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-semibold text-zinc-200"
             >
               {UI_TEXT.labels.qualifiedTeam}
             </label>
@@ -109,27 +139,27 @@ export function PredictionForm({
               name="qualifiedTeam"
               value={qualifiedTeam}
               onChange={(e) => setQualifiedTeam(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:ring-2 focus:ring-emerald-500/10"
+              className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-4 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
               required
             >
               <option value="">Selecciona un equipo</option>
               <option value={homeTeam}>{homeTeam}</option>
               <option value={awayTeam}>{awayTeam}</option>
             </select>
-            <p className="mt-2 text-xs text-zinc-400">
+            <p className="mt-3 text-xs leading-5 text-zinc-400">
               {UI_TEXT.helper.knockoutQualifiedTeam}
             </p>
           </div>
         ) : null}
 
         {state.error ? (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <div className="rounded-2xl border border-[#E61D25]/30 bg-[#E61D25]/12 px-4 py-3 text-sm text-[#ffb3b7]">
             {state.error}
           </div>
         ) : null}
 
         {state.success ? (
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          <div className="rounded-2xl border border-[#3CAC3B]/30 bg-[#3CAC3B]/12 px-4 py-3 text-sm text-[#9be39a]">
             Pronóstico guardado correctamente.
           </div>
         ) : null}
@@ -137,7 +167,7 @@ export function PredictionForm({
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex w-full items-center justify-center rounded-2xl bg-[#2A398D] px-5 py-4 text-sm font-black uppercase tracking-wide text-white transition hover:bg-[#24317c] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {pending ? "Guardando..." : "Guardar pronóstico"}
         </button>

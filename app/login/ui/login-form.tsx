@@ -30,7 +30,7 @@ export function LoginForm() {
       <div>
         <label
           htmlFor="username"
-          className="mb-2 block text-sm font-medium text-zinc-200"
+          className="mb-2 block text-sm font-medium text-[#D1D4D1]"
         >
           Usuario
         </label>
@@ -39,8 +39,8 @@ export function LoginForm() {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:bg-zinc-900 focus:ring-2 focus:ring-emerald-500/10 placeholder:text-zinc-500"
-          placeholder="rommel"
+          className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/38 px-4 py-3 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15 placeholder:text-[#D1D4D1]/40"
+          placeholder="admin"
           autoComplete="username"
           required
         />
@@ -49,7 +49,7 @@ export function LoginForm() {
       <div>
         <label
           htmlFor="password"
-          className="mb-2 block text-sm font-medium text-zinc-200"
+          className="mb-2 block text-sm font-medium text-[#D1D4D1]"
         >
           Contraseña
         </label>
@@ -58,7 +58,7 @@ export function LoginForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white outline-none transition focus:border-emerald-500/40 focus:bg-zinc-900 focus:ring-2 focus:ring-emerald-500/10 placeholder:text-zinc-500"
+          className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/38 px-4 py-3 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15 placeholder:text-[#D1D4D1]/40"
           placeholder="••••••••"
           autoComplete="current-password"
           required
@@ -66,7 +66,7 @@ export function LoginForm() {
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className="rounded-2xl border border-[#E61D25]/30 bg-[#E61D25]/12 px-4 py-3 text-sm text-[#ffb3b7]">
           Credenciales inválidas. Verifica tu usuario y contraseña.
         </div>
       ) : null}
@@ -74,7 +74,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-2xl bg-[#2A398D] px-4 py-3 text-sm font-black uppercase tracking-wide text-white transition hover:bg-[#24317c] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Ingresando..." : "Ingresar"}
       </button>
