@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { UI_TEXT } from "@/lib/ui/text";
+import Image from "next/image";
 
 export async function AuthenticatedNav() {
   const session = await auth();
@@ -18,8 +19,15 @@ export async function AuthenticatedNav() {
             href="/dashboard"
             className="flex items-center gap-3 text-white transition hover:text-[#D1D4D1]"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#3CAC3B]/30 bg-[#3CAC3B]/12 text-sm font-black text-[#3CAC3B] shadow-lg shadow-black/20">
-              E
+            <span className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">
+              <Image
+                src="/world-cup.svg"
+                alt="Copa del Mundo"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
+                priority
+              />
             </span>
 
             <div>
@@ -96,16 +104,24 @@ export async function AuthenticatedNav() {
             </Link>
           </nav>
         </div>
-
-        <div className="flex items-center justify-between gap-4 rounded-[20px] border border-white/10 bg-[#474A4A]/22 px-4 py-3 lg:justify-end">
-          <div className="text-right text-sm">
-            <p className="font-semibold text-white">{session.user.username}</p>
-            <p className="text-xs uppercase tracking-[0.2em] text-[#D1D4D1]/45">
+        <div className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3">
+          <div className="min-w-[48px] text-right leading-tight">
+            <p className="text-sm font-semibold text-white">{session.user.username}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-zinc-500">
               {session.user.role}
             </p>
           </div>
 
-          <LogoutButton />
+          <div className="flex flex-col items-stretch gap-2">
+            <LogoutButton />
+
+            <Link
+              href="/settings/password"
+              className="inline-flex justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-medium text-zinc-300 transition hover:bg-white/10 hover:text-white"
+            >
+              Cambiar contraseña
+            </Link>
+          </div>
         </div>
       </div>
     </header>
