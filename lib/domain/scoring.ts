@@ -83,7 +83,7 @@ export function calculatePredictionScore(
   if (!knockout) {
     if (exact) {
       return {
-        points: 3,
+        points: 4,
         exact: true,
         correctOutcome: true,
         correctQualifiedTeam: false,
