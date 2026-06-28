@@ -34,6 +34,13 @@ export type RankingRow = {
   scoredPredictions: number;
 };
 
+const GROUP_EXACT_SCORE_POINTS = 4;
+const GROUP_CORRECT_OUTCOME_POINTS = 1;
+
+const KNOCKOUT_EXACT_AND_QUALIFIED_POINTS = 5;
+const KNOCKOUT_OUTCOME_AND_QUALIFIED_POINTS = 2;
+const KNOCKOUT_ONLY_QUALIFIED_POINTS = 1;
+
 function getOutcome(home: number, away: number): "HOME" | "AWAY" | "DRAW" {
   if (home > away) return "HOME";
   if (away > home) return "AWAY";
@@ -83,7 +90,7 @@ export function calculatePredictionScore(
   if (!knockout) {
     if (exact) {
       return {
-        points: 4,
+        points: GROUP_EXACT_SCORE_POINTS,
         exact: true,
         correctOutcome: true,
         correctQualifiedTeam: false,
@@ -94,7 +101,7 @@ export function calculatePredictionScore(
 
     if (correctOutcome) {
       return {
-        points: 1,
+        points: GROUP_CORRECT_OUTCOME_POINTS,
         exact: false,
         correctOutcome: true,
         correctQualifiedTeam: false,
@@ -120,7 +127,7 @@ export function calculatePredictionScore(
 
   if (exact && correctQualifiedTeam) {
     return {
-      points: 5,
+      points: KNOCKOUT_EXACT_AND_QUALIFIED_POINTS,
       exact: true,
       correctOutcome: true,
       correctQualifiedTeam: true,
@@ -131,7 +138,7 @@ export function calculatePredictionScore(
 
   if (correctOutcome && correctQualifiedTeam) {
     return {
-      points: 2,
+      points: KNOCKOUT_OUTCOME_AND_QUALIFIED_POINTS,
       exact: false,
       correctOutcome: true,
       correctQualifiedTeam: true,
@@ -142,7 +149,7 @@ export function calculatePredictionScore(
 
   if (correctQualifiedTeam) {
     return {
-      points: 1,
+      points: KNOCKOUT_ONLY_QUALIFIED_POINTS,
       exact: false,
       correctOutcome: false,
       correctQualifiedTeam: true,
