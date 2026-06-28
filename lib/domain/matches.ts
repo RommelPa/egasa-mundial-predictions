@@ -75,3 +75,23 @@ export function getMatchStatus(
 
   return UI_TEXT.matchStatus.open;
 }
+
+export function getWinnerFromScore(
+  homeTeam: string,
+  awayTeam: string,
+  homeScore: number,
+  awayScore: number
+): string | null {
+  if (homeScore > awayScore) return homeTeam;
+  if (awayScore > homeScore) return awayTeam;
+  return null;
+}
+
+export function isValidQualifiedTeam(
+  qualifiedTeam: string | null | undefined,
+  homeTeam: string,
+  awayTeam: string
+): boolean {
+  if (!qualifiedTeam) return false;
+  return qualifiedTeam === homeTeam || qualifiedTeam === awayTeam;
+}

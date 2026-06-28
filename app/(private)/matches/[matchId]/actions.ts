@@ -3,10 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
+import { isKnockoutStage } from "@/lib/domain/matches";
 import {
   parseNonNegativeInteger,
   validatePredictionLikeInput,
 } from "@/lib/domain/predictions";
+
 
 type ActionState = {
   success?: boolean;
@@ -23,7 +25,7 @@ export async function savePrediction(
   const predictedHomeValue = formData.get("predictedHome")?.toString();
   const predictedAwayValue = formData.get("predictedAway")?.toString();
   const qualifiedTeamRaw = formData.get("qualifiedTeam")?.toString();
-  const qualifiedTeam = qualifiedTeamRaw?.trim() || null;
+  let qualifiedTeam = qualifiedTeamRaw?.trim() || null;
 
   const parsedHome = parseNonNegativeInteger(
     predictedHomeValue,
@@ -57,6 +59,22 @@ export async function savePrediction(
     return {
       error: "Este partido ya inició. El pronóstico está cerrado y no puede modificarse.",
     };
+  }
+
+  const knockout = isKnockoutStage(match.stage);
+
+  if (!knockout) {
+    qualifiedTeam = null;
+  }
+
+  if (knockout) {
+    if (parsedHome.value > parsedAway.value) {
+      qualifiedTeam = match.homeTeam;
+    }
+
+    if (parsedAway.value > parsedHome.value) {
+      qualifiedTeam = match.awayTeam;
+    }
   }
 
   const validation = validatePredictionLikeInput({

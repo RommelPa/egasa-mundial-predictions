@@ -35,12 +35,40 @@ export function PredictionForm({
   const [predictedHome, setPredictedHome] = useState(
     initialPrediction ? String(initialPrediction.predictedHome) : ""
   );
+
   const [predictedAway, setPredictedAway] = useState(
     initialPrediction ? String(initialPrediction.predictedAway) : ""
   );
+
   const [qualifiedTeam, setQualifiedTeam] = useState(
     initialPrediction?.qualifiedTeam ?? ""
   );
+
+  const predictedHomeNumber =
+    predictedHome === "" ? null : Number(predictedHome);
+
+  const predictedAwayNumber =
+    predictedAway === "" ? null : Number(predictedAway);
+
+  const hasValidScores =
+    predictedHomeNumber !== null &&
+    predictedAwayNumber !== null &&
+    Number.isInteger(predictedHomeNumber) &&
+    Number.isInteger(predictedAwayNumber) &&
+    predictedHomeNumber >= 0 &&
+    predictedAwayNumber >= 0;
+
+  const automaticQualifiedTeam =
+    knockout && hasValidScores && predictedHomeNumber > predictedAwayNumber
+      ? homeTeam
+      : knockout && hasValidScores && predictedAwayNumber > predictedHomeNumber
+        ? awayTeam
+        : null;
+
+  const needsQualifiedTeamSelection =
+    knockout &&
+    hasValidScores &&
+    predictedHomeNumber === predictedAwayNumber;
 
   const [state, formAction, pending] = useActionState(
     savePrediction.bind(null, matchId),
@@ -128,27 +156,62 @@ export function PredictionForm({
 
         {knockout ? (
           <div className="rounded-[24px] border border-white/10 bg-black/20 p-5">
-            <label
-              htmlFor="qualifiedTeam"
-              className="mb-2 block text-sm font-semibold text-zinc-200"
-            >
+            <p className="mb-2 text-sm font-semibold text-zinc-200">
               {UI_TEXT.labels.qualifiedTeam}
-            </label>
-            <select
-              id="qualifiedTeam"
-              name="qualifiedTeam"
-              value={qualifiedTeam}
-              onChange={(e) => setQualifiedTeam(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-4 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
-              required
-            >
-              <option value="">Selecciona un equipo</option>
-              <option value={homeTeam}>{homeTeam}</option>
-              <option value={awayTeam}>{awayTeam}</option>
-            </select>
-            <p className="mt-3 text-xs leading-5 text-zinc-400">
-              {UI_TEXT.helper.knockoutQualifiedTeam}
             </p>
+
+            {automaticQualifiedTeam ? (
+              <div className="rounded-2xl border border-[#3CAC3B]/25 bg-[#3CAC3B]/10 px-4 py-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#9be39a]">
+                  Clasifica automáticamente
+                </p>
+                <div className="mt-2 text-white">
+                  <TeamNameWithFlag
+                    teamName={automaticQualifiedTeam}
+                    className="text-base font-bold"
+                    flagClassName="h-4 w-6"
+                  />
+                </div>
+                <p className="mt-3 text-xs leading-5 text-zinc-400">
+                  Como tu marcador tiene un ganador, ese equipo se toma como clasificado.
+                </p>
+              </div>
+            ) : null}
+
+            {needsQualifiedTeamSelection ? (
+              <>
+                <label
+                  htmlFor="qualifiedTeam"
+                  className="sr-only"
+                >
+                  {UI_TEXT.labels.qualifiedTeam}
+                </label>
+
+                <select
+                  id="qualifiedTeam"
+                  name="qualifiedTeam"
+                  value={qualifiedTeam}
+                  onChange={(e) => setQualifiedTeam(e.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-4 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
+                  required
+                >
+                  <option value="">Selecciona un equipo</option>
+                  <option value={homeTeam}>{homeTeam}</option>
+                  <option value={awayTeam}>{awayTeam}</option>
+                </select>
+
+                <p className="mt-3 text-xs leading-5 text-zinc-400">
+                  Si pronosticas empate en eliminatorias, debes elegir qué equipo clasifica.
+                </p>
+              </>
+            ) : null}
+
+            {!automaticQualifiedTeam && !needsQualifiedTeamSelection ? (
+              <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-xs leading-5 text-zinc-400">
+                Ingresa el marcador para determinar si el clasificado se asigna automáticamente
+                o si debes seleccionarlo por empate.
+              </p>
+            ) : null}
           </div>
         ) : null}
 

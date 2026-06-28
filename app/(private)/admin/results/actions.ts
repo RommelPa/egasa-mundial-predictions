@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
+import { isKnockoutStage } from "@/lib/domain/matches";
 import {
   parseNonNegativeInteger,
   validatePredictionLikeInput,
@@ -23,7 +24,7 @@ export async function saveMatchResult(
   const resultHomeValue = formData.get("resultHome")?.toString();
   const resultAwayValue = formData.get("resultAway")?.toString();
   const qualifiedTeamRaw = formData.get("qualifiedTeam")?.toString();
-  const qualifiedTeam = qualifiedTeamRaw?.trim() || null;
+  let qualifiedTeam = qualifiedTeamRaw?.trim() || null;
 
   const parsedHome = parseNonNegativeInteger(
     resultHomeValue,
@@ -51,6 +52,22 @@ export async function saveMatchResult(
     return { error: "El partido no existe." };
   }
 
+  const knockout = isKnockoutStage(match.stage);
+
+  if (!knockout) {
+    qualifiedTeam = null;
+  }
+
+  if (knockout) {
+    if (parsedHome.value > parsedAway.value) {
+      qualifiedTeam = match.homeTeam;
+    }
+
+    if (parsedAway.value > parsedHome.value) {
+      qualifiedTeam = match.awayTeam;
+    }
+  }
+
   const validation = validatePredictionLikeInput({
     stage: match.stage,
     homeTeam: match.homeTeam,
@@ -76,6 +93,9 @@ export async function saveMatchResult(
   revalidatePath("/admin/results");
   revalidatePath("/admin/matches");
   revalidatePath("/matches");
+  revalidatePath("/ranking");
+  revalidatePath("/dashboard");
+  revalidatePath("/my-predictions");
   revalidatePath(`/matches/${matchId}/predict`);
 
   return { success: true };

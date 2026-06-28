@@ -4,6 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { saveMatchResult } from "../actions";
 import { formatStage, isKnockoutStage } from "@/lib/domain/matches";
 import { UI_TEXT } from "@/lib/ui/text";
+import { TeamNameWithFlag } from "@/components/teams/team-name-with-flag";
 
 type ResultFormProps = {
   matchId: string;
@@ -40,6 +41,28 @@ export function ResultForm({
   const [qualifiedTeam, setQualifiedTeam] = useState(
     initialResult.qualifiedTeam ?? ""
   );
+
+  const resultHomeNumber = resultHome === "" ? null : Number(resultHome);
+
+  const resultAwayNumber = resultAway === "" ? null : Number(resultAway);
+
+  const hasValidScores =
+    resultHomeNumber !== null &&
+    resultAwayNumber !== null &&
+    Number.isInteger(resultHomeNumber) &&
+    Number.isInteger(resultAwayNumber) &&
+    resultHomeNumber >= 0 &&
+    resultAwayNumber >= 0;
+
+  const automaticQualifiedTeam =
+    knockout && hasValidScores && resultHomeNumber > resultAwayNumber
+      ? homeTeam
+      : knockout && hasValidScores && resultAwayNumber > resultHomeNumber
+        ? awayTeam
+        : null;
+
+  const needsQualifiedTeamSelection =
+    knockout && hasValidScores && resultHomeNumber === resultAwayNumber;
 
   const [state, formAction, pending] = useActionState(
     saveMatchResult.bind(null, matchId),
@@ -100,31 +123,65 @@ export function ResultForm({
         </div>
       </div>
 
-      {knockout ? (
-        <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-          <label
-            htmlFor={`qualifiedTeam-${matchId}`}
-            className="mb-2 block text-sm font-medium text-[#D1D4D1]"
-          >
-            {UI_TEXT.labels.qualifiedTeam}
-          </label>
-          <select
-            id={`qualifiedTeam-${matchId}`}
-            name="qualifiedTeam"
-            value={qualifiedTeam}
-            onChange={(e) => setQualifiedTeam(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-3 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
-            required
-          >
-            <option value="">Selecciona un equipo</option>
-            <option value={homeTeam}>{homeTeam}</option>
-            <option value={awayTeam}>{awayTeam}</option>
-          </select>
-          <p className="mt-2 text-xs text-[#D1D4D1]/65">
-            {UI_TEXT.helper.knockoutQualifiedTeam}
-          </p>
+{knockout ? (
+  <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+    <p className="mb-2 text-sm font-medium text-[#D1D4D1]">
+      {UI_TEXT.labels.qualifiedTeam}
+    </p>
+
+    {automaticQualifiedTeam ? (
+      <div className="rounded-2xl border border-[#3CAC3B]/25 bg-[#3CAC3B]/10 px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#9be39a]">
+          Clasifica automáticamente
+        </p>
+
+        <div className="mt-2 text-white">
+          <TeamNameWithFlag
+            teamName={automaticQualifiedTeam}
+            className="text-sm font-bold"
+            flagClassName="h-4 w-6"
+          />
         </div>
-      ) : null}
+
+        <p className="mt-2 text-xs leading-5 text-[#D1D4D1]/65">
+          Como el resultado tiene un ganador, ese equipo se registra como clasificado.
+        </p>
+      </div>
+    ) : null}
+
+    {needsQualifiedTeamSelection ? (
+      <>
+        <label htmlFor={`qualifiedTeam-${matchId}`} className="sr-only">
+          {UI_TEXT.labels.qualifiedTeam}
+        </label>
+
+        <select
+          id={`qualifiedTeam-${matchId}`}
+          name="qualifiedTeam"
+          value={qualifiedTeam}
+          onChange={(e) => setQualifiedTeam(e.target.value)}
+          className="w-full rounded-2xl border border-white/10 bg-[#474A4A]/40 px-4 py-3 text-sm text-white outline-none transition focus:border-[#3CAC3B]/50 focus:ring-2 focus:ring-[#3CAC3B]/15"
+          required
+        >
+          <option value="">Selecciona un equipo</option>
+          <option value={homeTeam}>{homeTeam}</option>
+          <option value={awayTeam}>{awayTeam}</option>
+        </select>
+
+        <p className="mt-2 text-xs text-[#D1D4D1]/65">
+          Si el resultado terminó empatado tras 120 minutos, selecciona qué equipo clasificó.
+        </p>
+      </>
+    ) : null}
+
+    {!automaticQualifiedTeam && !needsQualifiedTeamSelection ? (
+      <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-[#D1D4D1]/65">
+        Ingresa el resultado para determinar si el clasificado se asigna automáticamente
+        o si debes seleccionarlo por empate.
+      </p>
+    ) : null}
+  </div>
+) : null}
 
       {state.error ? (
         <div className="rounded-2xl border border-[#E61D25]/30 bg-[#E61D25]/12 px-4 py-3 text-sm text-[#ffb3b7]">
